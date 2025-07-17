@@ -5,7 +5,6 @@ import {
   Req,
   Controller,
   UseGuards,
-  Query,
   Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';

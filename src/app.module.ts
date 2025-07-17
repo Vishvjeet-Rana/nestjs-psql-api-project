@@ -6,11 +6,14 @@ import { AuthModule } from './auth/auth.module';
 import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { ProfileService } from './profile/profile.service';
+import { ProfileModule } from './profile/profile.module';
+import { ProfileController } from './profile/profile.controller';
 
 @Module({
-  imports: [PrismaModule, AuthModule, MailModule],
-  controllers: [AppController],
-  providers: [AppService, MailService],
+  imports: [PrismaModule, AuthModule, MailModule, ProfileModule],
+  controllers: [AppController, ProfileController],
+  providers: [AppService, MailService, ProfileService],
   exports: [MailService],
 })
 export class AppModule implements NestModule {
