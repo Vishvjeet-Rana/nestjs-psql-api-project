@@ -3,9 +3,9 @@ import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
-  private transporter = nodemailer.transporter({
+  private transporter = nodemailer.createTransport({
     host: process.env.SENDGRID_HOST,
-    port: process.env.SENDGRID_PORT,
+    port: Number(process.env.SENDGRID_PORT),
     auth: {
       user: process.env.SENDGRID_USER,
       pass: process.env.SENDGRID_API_KEY,
@@ -13,12 +13,19 @@ export class MailService {
   });
 
   async sendMail(to: string, subject: string, html: string) {
-    return this.transporter.sendMail({
-      from: process.env.MAIL_FROM,
-      to,
-      subject,
-      html,
-    });
+    return this.transporter
+      .sendMail({
+        from: process.env.MAIL_FROM,
+        to,
+        subject,
+        html,
+      })
+      .then((info) => {
+        console.log(`Email sent: ${info.messageId}`);
+      })
+      .catch((err) => {
+        console.error(`❌ Email failed: ${err.message}`);
+      });
   }
 
   async sendWelcomeEmail(to: string, name: string) {

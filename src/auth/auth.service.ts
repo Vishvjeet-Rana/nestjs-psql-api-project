@@ -21,7 +21,12 @@ export class AuthService {
     return { access_token: this.jwt.sign(payload) };
   }
 
-  async register(name: string, email: string, password: string) {
+  async register(
+    name: string,
+    email: string,
+    password: string,
+    image?: string,
+  ) {
     const exists = await this.prisma.user.findUnique({ where: { email } });
 
     if (exists) throw new ConflictException('Email is already in use');
@@ -29,7 +34,7 @@ export class AuthService {
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await this.prisma.user.create({
-      data: { name, email, password: hashed },
+      data: { name, email, password: hashed, image },
     });
 
     try {
@@ -94,5 +99,70 @@ export class AuthService {
     await this.mailService.sendResetPasswordEmail(email, resetToken);
 
     return { message: 'If email was valid, a reset link sent to your email' };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    let payload: any;
+
+    try {
+      payload = await this.jwt.verify(token);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired reset token');
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: payload.sub,
+        resetToken: token,
+        resetTokenExpire: {
+          gte: new Date(), // must not be expired
+        },
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // update the password if user exists
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpire: null,
+      },
+    });
+
+    return { message: 'Password has been resest successfully' };
+  }
+
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) throw new UnauthorizedException('Old Password Should Match');
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) throw new UnauthorizedException('Old Password Is Incorrect');
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // change Password
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return { message: 'Password Changed Successfully' };
   }
 }
