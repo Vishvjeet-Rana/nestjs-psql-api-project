@@ -46,7 +46,7 @@ export class ProfileController {
       }),
     }),
   )
-  @ApiConsumes('miltipart/form-data')
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',

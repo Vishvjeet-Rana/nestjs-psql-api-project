@@ -31,5 +31,6 @@ import { v4 as uuidv4 } from 'uuid';
   ],
   providers: [AuthService],
   controllers: [AuthController],
+  exports: [JwtModule],
 })
 export class AuthModule {}
