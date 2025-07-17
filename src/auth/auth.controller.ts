@@ -9,7 +9,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ResgisterDto } from './dto/register.dto';
+import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth-guard';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
@@ -26,7 +26,6 @@ import {
 
 import { UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerConfig } from 'src/common/multer.config'; // adjust path if needed
 
 @ApiTags('Auth') // this will gorup routed under "Auth"
 @Controller('auth')
@@ -41,12 +40,15 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        name: { type: 'string', example: 'John Doe' },
-        email: { type: 'string', format: 'email', example: 'john@gmail.com' },
+        name: { type: 'string', description: 'Enter your name' },
+        email: {
+          type: 'string',
+
+          description: 'Enter your email',
+        },
         password: {
           type: 'string',
-          format: 'password',
-          example: 'password123',
+          description: 'Enter a secure password',
         },
         image: {
           type: 'string',
@@ -57,7 +59,7 @@ export class AuthController {
   })
   async register(
     @UploadedFile() file: Express.Multer.File,
-    @Body() dto: ResgisterDto,
+    @Body() dto: RegisterDto,
   ) {
     const image = file?.filename; // or `null` if not uploaded
     return this.authService.register(dto.name, dto.email, dto.password, image);
@@ -65,6 +67,15 @@ export class AuthController {
 
   @ApiOperation({ summary: 'login and get access token' })
   @Post('login')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', description: 'Enter your email' },
+        password: { type: 'string', description: 'Enter Password' },
+      },
+    },
+  })
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto.email, dto.password);
   }
