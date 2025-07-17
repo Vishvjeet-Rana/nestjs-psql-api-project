@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { GlobalExceptionFilter } from './common/filter/http-exception.filter';
+import { PrismaExceptionFilter } from './common/filter/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule); // use NestExpressApplication
@@ -15,6 +17,12 @@ async function bootstrap() {
   });
 
   setupSwagger(app);
+
+  // global exception filters
+  app.useGlobalFilters(
+    new GlobalExceptionFilter(),
+    new PrismaExceptionFilter(),
+  );
 
   await app.listen(process.env.PORT ?? 3000);
 }
