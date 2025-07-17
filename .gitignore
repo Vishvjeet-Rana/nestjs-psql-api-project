@@ -10,3 +10,5 @@ build/
 
 *.log
 /generated/prisma
+
+uploads/
