@@ -37,7 +37,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       }
     }
 
-    //  HTTP exception
+    // HTTP exception
     else if (exception instanceof HttpException) {
       status = exception.getStatus();
       message = exception.getResponse();
