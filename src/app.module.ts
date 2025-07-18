@@ -9,9 +9,10 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ProfileService } from './profile/profile.service';
 import { ProfileModule } from './profile/profile.module';
 import { ProfileController } from './profile/profile.controller';
+import { PostModule } from './post/post.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, MailModule, ProfileModule],
+  imports: [PrismaModule, AuthModule, MailModule, ProfileModule, PostModule],
   controllers: [AppController, ProfileController],
   providers: [AppService, MailService, ProfileService],
   exports: [MailService],

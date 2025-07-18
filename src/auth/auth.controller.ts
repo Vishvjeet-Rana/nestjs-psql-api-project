@@ -27,7 +27,14 @@ import {
 import { UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validator.pipe';
-import { RegisterSchema } from 'src/validators/auth/auth.schema';
+import {
+  ChangePasswordSchema,
+  ForgotPasswordSchema,
+  GetMeSchema,
+  LoginSchema,
+  RegisterSchema,
+  ResetPasswordSchema,
+} from 'src/validators/auth/auth.schema';
 
 @ApiTags('Auth') // this will gorup routed under "Auth"
 @Controller('auth')
@@ -69,6 +76,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'login and get access token' })
+  @UsePipes(new ZodValidationPipe(LoginSchema))
   @Post('login')
   @ApiBody({
     schema: {
@@ -84,6 +92,7 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @UsePipes(new ZodValidationPipe(GetMeSchema))
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@Req() req: any) {
@@ -91,6 +100,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Send forgot password reset link to user email' })
+  @UsePipes(new ZodValidationPipe(ForgotPasswordSchema))
   @ApiBody({ type: ForgotPasswordDto })
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
@@ -98,6 +108,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Reset password using token from email link' })
+  @UsePipes(new ZodValidationPipe(ResetPasswordSchema))
   @ApiParam({ name: 'token', description: 'Reset token from email link' })
   @ApiBody({ type: ResetPasswordDto })
   @Post('reset-password/:token')
@@ -109,6 +120,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Change password for authenticated user' })
+  @UsePipes(new ZodValidationPipe(ChangePasswordSchema))
   @ApiBearerAuth()
   @ApiBody({ type: ChangePasswordDto })
   @UseGuards(JwtAuthGuard)

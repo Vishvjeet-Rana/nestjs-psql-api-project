@@ -49,3 +49,7 @@ export const ChangePasswordSchema = z.object({
     .trim()
     .min(8, { message: 'Password must be at least 8 characters long' }),
 });
+
+export const GetMeSchema = z.object({
+  userId: z.string().uuid({ message: 'Invalid user ID Format' }),
+});
