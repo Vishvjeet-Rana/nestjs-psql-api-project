@@ -24,9 +24,18 @@ export class ProfileService {
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) throw new NotFoundException('User Not Found');
+
+    const name = dto.name === 'string' ? existingUser.name : dto.name;
+    const email = dto.email === 'string' ? existingUser.email : dto.email;
+
     return this.prisma.user.update({
       where: { id: userId },
-      data: { name: dto.name, email: dto.email },
+      data: { name, email },
       select: {
         id: true,
         name: true,

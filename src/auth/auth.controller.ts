@@ -6,6 +6,7 @@ import {
   Controller,
   UseGuards,
   Param,
+  UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -25,6 +26,8 @@ import {
 
 import { UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ZodValidationPipe } from 'src/common/pipes/zod-validator.pipe';
+import { RegisterSchema } from 'src/validators/auth/auth.schema';
 
 @ApiTags('Auth') // this will gorup routed under "Auth"
 @Controller('auth')
@@ -32,6 +35,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Register a new user' })
+  @UsePipes(new ZodValidationPipe(RegisterSchema))
   @Post('register')
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
