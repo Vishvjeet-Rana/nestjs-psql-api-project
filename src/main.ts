@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
@@ -11,6 +12,8 @@ async function bootstrap() {
 
   // global route prefix
   app.setGlobalPrefix('api');
+
+  app.enableCors();
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',

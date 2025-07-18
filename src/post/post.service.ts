@@ -60,6 +60,8 @@ export class PostService {
   ): Promise<Post> {
     const post = await this.prisma.post.findUnique({ where: { id } });
 
+    //   50e5341a-291e-415b-8755-0d13b7de0606
+
     if (!post) throw new NotFoundException('Post not found');
 
     return this.prisma.post.update({

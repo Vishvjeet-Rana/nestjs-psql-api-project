@@ -28,7 +28,7 @@ import { UpdateProfileSchema } from 'src/validators/profile/profile.schema';
 
 @Controller('profile')
 @ApiTags('Profile')
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
