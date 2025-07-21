@@ -36,7 +36,7 @@ export class ProfileController {
   @ApiOperation({ summary: 'Get current user profile' })
   @Get()
   async getProfile(@Req() req: any) {
-    return this.profileService.getProfile(req.user.userId);
+    return this.profileService.getProfile(req.user.sub);
   }
 
   @ApiOperation({ summary: 'Update profile name or email' })
@@ -44,7 +44,7 @@ export class ProfileController {
   @Put()
   @UsePipes(new ZodValidationPipe(UpdateProfileSchema))
   async updateProfile(@Req() req: any, @Body() dto: UpdateProfileDto) {
-    return this.profileService.updateProfile(req.user.userId, dto);
+    return this.profileService.updateProfile(req.user.sub, dto);
   }
 
   @ApiOperation({ summary: 'Upload a new profile picture' })
@@ -77,7 +77,7 @@ export class ProfileController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.profileService.uploadProfilePicture(
-      req.user.userId,
+      req.user.sub,
       file.filename,
     );
   }

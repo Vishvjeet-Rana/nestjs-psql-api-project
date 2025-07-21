@@ -79,18 +79,27 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
+    console.log('🔍 Forgot Password - Email received:', email);
+
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return new UnauthorizedException('Email is not valid');
+      console.log('❌ User not found with email:', email);
+      return { message: 'If email was valid, a reset link sent to your email' };
     }
+
+    console.log('✅ User found:', { id: user.id, email: user.email });
 
     const payload = { sub: user.id, purpose: 'forgot-password' };
     const resetToken = this.jwt.sign(payload, { expiresIn: '1h' });
 
-    const expire = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    console.log('🔍 Reset token generated:', resetToken);
+    console.log('🔍 Token payload:', payload);
 
-    await this.prisma.user.update({
+    const expire = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    console.log('🔍 Token expiry time:', expire);
+
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: {
         resetToken,
@@ -98,19 +107,38 @@ export class AuthService {
       },
     });
 
-    await this.mailService.sendResetPasswordEmail(email, resetToken);
+    console.log(
+      '✅ Reset token saved to database for user:',
+      updatedUser.email,
+    );
+
+    try {
+      await this.mailService.sendResetPasswordEmail(email, resetToken);
+      console.log('✅ Reset email sent successfully to:', email);
+    } catch (error) {
+      console.log('❌ Email sending failed:', error.message);
+    }
 
     return { message: 'If email was valid, a reset link sent to your email' };
   }
 
   async resetPassword(token: string, newPassword: string) {
+    console.log('🔍 Reset Password - Token received:', token);
+    console.log('🔍 Reset Password - New password received:', newPassword);
+
     let payload: any;
 
     try {
-      payload = await this.jwt.verify(token);
+      // Remove await - jwt.verify is synchronous
+      payload = this.jwt.verify(token);
+      console.log('✅ Token verified successfully:', payload);
     } catch (error) {
+      console.log('❌ Token verification failed:', error.message);
       throw new UnauthorizedException('Invalid or expired reset token');
     }
+
+    console.log('🔍 Looking for user with ID:', payload.sub);
+    console.log('🔍 Looking for user with token:', token);
 
     const user = await this.prisma.user.findFirst({
       where: {
@@ -122,14 +150,27 @@ export class AuthService {
       },
     });
 
+    console.log('🔍 User found:', user ? 'YES' : 'NO');
+    if (user) {
+      console.log('🔍 User details:', {
+        id: user.id,
+        email: user.email,
+        resetToken: user.resetToken,
+        resetTokenExpire: user.resetTokenExpire,
+        currentTime: new Date(),
+      });
+    }
+
     if (!user) {
+      console.log('❌ User not found or token expired');
       throw new UnauthorizedException('Invalid or expired token');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
+    console.log('🔍 New password hashed successfully');
 
     // update the password if user exists
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: {
         password: hashedPassword,
@@ -138,9 +179,12 @@ export class AuthService {
       },
     });
 
-    return { message: 'Password has been resest successfully' };
+    console.log(
+      '✅ Password updated successfully for user:',
+      updatedUser.email,
+    );
+    return { message: 'Password has been reset successfully' };
   }
-
   async changePassword(
     userId: string,
     oldPassword: string,

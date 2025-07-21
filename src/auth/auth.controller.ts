@@ -91,12 +91,12 @@ export class AuthController {
     return this.authService.login(dto.email, dto.password);
   }
 
-  @ApiBearerAuth()
   @UsePipes(new ZodValidationPipe(GetMeSchema))
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @Get('me')
   async getMe(@Req() req: any) {
-    return this.authService.getMe(req.user.userId);
+    return this.authService.getMe(req.user.sub);
   }
 
   @ApiOperation({ summary: 'Send forgot password reset link to user email' })
@@ -108,26 +108,38 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Reset password using token from email link' })
-  @UsePipes(new ZodValidationPipe(ResetPasswordSchema))
+  // @UsePipes(new ZodValidationPipe(ResetPasswordSchema))
   @ApiParam({ name: 'token', description: 'Reset token from email link' })
-  @ApiBody({ type: ResetPasswordDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        newPassword: {
+          type: 'string',
+          description: 'Enter new password',
+          minLength: 8,
+        },
+      },
+      required: ['newPassword'], // ← ensures Swagger enforces presence
+    },
+  })
   @Post('reset-password/:token')
   async resetPassword(
     @Param('token') token: string,
-    @Body() dto: ResetPasswordDto,
+    @Body(new ZodValidationPipe(ResetPasswordSchema)) dto: ResetPasswordDto,
   ) {
     return this.authService.resetPassword(token, dto.newPassword);
   }
 
   @ApiOperation({ summary: 'Change password for authenticated user' })
   @UsePipes(new ZodValidationPipe(ChangePasswordSchema))
-  @ApiBearerAuth()
   @ApiBody({ type: ChangePasswordDto })
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @Post('change-password')
   async changePassword(@Req() req, @Body() dto: ChangePasswordDto) {
     return this.authService.changePassword(
-      req.user.userId,
+      req.user.sub,
       dto.oldPassword,
       dto.newPassword,
     );

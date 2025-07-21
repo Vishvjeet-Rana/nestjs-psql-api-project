@@ -28,8 +28,6 @@ export const ForgotPasswordSchema = z.object({
 });
 
 export const ResetPasswordSchema = z.object({
-  token: z.string().trim(),
-
   newPassword: z
     .string()
     .trim()
@@ -37,8 +35,6 @@ export const ResetPasswordSchema = z.object({
 });
 
 export const ChangePasswordSchema = z.object({
-  userId: z.string().uuid({ message: 'Invalid user ID Format' }),
-
   oldPassword: z
     .string()
     .trim()
