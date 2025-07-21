@@ -25,7 +25,7 @@ export const UpdateProfileSchema = z.object({
     .optional()
     .transform((val) => (val === '' ? undefined : val))
     .refine((val) => val === undefined || val.length >= 5, {
-      message: 'Name must be at least 5 characters long',
+      message: 'Name must be at least 5 characters long.',
     }),
 
   email: z
