@@ -18,10 +18,11 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  password  String   @unique
+  password  String?   @unique
   role      Role     @default(USER)
   image     String?  // profile picture filename
   posts     Post[]
+  verified  Boolean  @default(false)
   resetToken String?
   resetTokenExpire DateTime?
   createdAt DateTime @default(now())

@@ -21,6 +21,7 @@ export class AuthService {
     return { access_token: this.jwt.sign(payload) };
   }
 
+  // register user service
   async register(
     name: string,
     email: string,
@@ -63,6 +64,7 @@ export class AuthService {
     return this.createToken(user.id, user.role);
   }
 
+  // get current user profile
   async getMe(userId: string) {
     return this.prisma.user.findUnique({
       where: { id: userId },

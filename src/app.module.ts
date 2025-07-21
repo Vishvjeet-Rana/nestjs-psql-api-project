@@ -12,6 +12,8 @@ import { ProfileModule } from './profile/profile.module';
 import { ProfileController } from './profile/profile.controller';
 import { PostModule } from './post/post.module';
 import { ConfigModule } from '@nestjs/config';
+import { AdminService } from './admin/admin.service';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -23,9 +25,10 @@ import { ConfigModule } from '@nestjs/config';
     MailModule,
     ProfileModule,
     PostModule,
+    AdminModule,
   ],
   controllers: [AppController, ProfileController],
-  providers: [AppService, MailService, ProfileService],
+  providers: [AppService, MailService, ProfileService, AdminService],
   exports: [MailService],
 })
 export class AppModule implements NestModule {
