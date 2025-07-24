@@ -34,7 +34,7 @@ export class MailService {
   }
 
   async sendResetPasswordEmail(to: string, token: string) {
-    const resetUrl = `http://localhost:3000/reset-password/${token}`;
+    const resetUrl = `http://localhost:5173/reset-password/${token}`;
     const html = `<p>You requested a password reset.</p><p><a href="${resetUrl}">Reset Password</a></p>`;
 
     return this.sendMail(to, 'Reset Your Password', html);
