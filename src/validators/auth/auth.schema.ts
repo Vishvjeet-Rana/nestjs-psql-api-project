@@ -4,7 +4,7 @@ export const RegisterSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(5, { message: 'Name must be at least 5 characters long.' }),
+    .min(1, { message: 'Name must be at least 5 characters long.' }),
 
   email: z.string().trim().email({ message: 'Invalid email format' }),
 

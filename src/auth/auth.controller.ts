@@ -7,6 +7,7 @@ import {
   UseGuards,
   Param,
   UsePipes,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -42,7 +43,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Register a new user' })
-  @UsePipes(new ZodValidationPipe(RegisterSchema))
+  // @UsePipes(new ZodValidationPipe(RegisterSchema))
   @Post('register')
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
@@ -67,11 +68,26 @@ export class AuthController {
       },
     },
   })
-  async register(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() dto: RegisterDto,
-  ) {
+  async register(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
     const image = file?.filename; // or `null` if not uploaded
+
+    const dto = {
+      name: body.name,
+      email: body.email,
+      password: body.password,
+    };
+
+    // ✅ Now validate manually using Zod
+    const parsed = RegisterSchema.safeParse(dto);
+
+    console.log('💬 BODY:', body);
+    console.log('📸 FILE:', file);
+
+    if (!parsed.success) {
+      // Optional: format errors
+      throw new BadRequestException(parsed.error.format());
+    }
+
     return this.authService.register(dto.name, dto.email, dto.password, image);
   }
 
