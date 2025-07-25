@@ -31,7 +31,14 @@ export class PostService {
   // get all posts service
   async getAllPosts(): Promise<Post[]> {
     return this.prisma.post.findMany({
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        image: true,
+        authorId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             name: true,
