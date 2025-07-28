@@ -35,12 +35,13 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Posts')
-@ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard)
 @Controller('post')
 export class PostController {
   constructor(private postService: PostService) {}
 
+  // create a post
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
   @Post()
   // @UsePipes(new ZodValidationPipe(CreatePostSchema))
   @UseInterceptors(
@@ -93,6 +94,7 @@ export class PostController {
     // return this.postService.createPost(title, content, req.user.id, image);
   }
 
+  // get all posts
   @ApiOperation({ summary: 'Get all blog posts' })
   @ApiResponse({ status: 200, description: 'List of Posts' })
   @Get()
@@ -100,6 +102,7 @@ export class PostController {
     return this.postService.getAllPosts();
   }
 
+  // get post by id
   @ApiOperation({ summary: 'Get Post by Id' })
   @ApiParam({ name: 'id', required: true, description: 'Post Id' })
   @ApiResponse({ status: 200, description: 'Post found' })
@@ -108,6 +111,9 @@ export class PostController {
     return this.postService.getPostById(id);
   }
 
+  // update post
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   // @UsePipes(new ZodValidationPipe(UpdatePostSchema))
   @UseInterceptors(
@@ -159,6 +165,9 @@ export class PostController {
     return this.postService.updatePost(id, title, content, file?.filename);
   }
 
+  // delete
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete Post' })
   @ApiParam({
     name: 'id',
