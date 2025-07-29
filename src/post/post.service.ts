@@ -51,7 +51,17 @@ export class PostService {
 
   // get post by id service
   async getPostById(id: string): Promise<Post> {
-    const post = await this.prisma.post.findUnique({ where: { id } });
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+      include: {
+        author: {
+          select: {
+            name: true, // Only select what you need
+            // email: true, // optionally
+          },
+        },
+      },
+    });
 
     if (!post) throw new NotFoundException('Post not found');
 
