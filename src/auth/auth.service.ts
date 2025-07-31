@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -47,18 +48,17 @@ export class AuthService {
     return this.createToken(user.id, user.role);
   }
 
+  // login user service
   async login(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      throw new UnauthorizedException(
-        "User doesn't exist or Invalid credentials",
-      );
+      throw new BadRequestException('This email is not registered');
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Incorrect password');
     }
 
     return this.createToken(user.id, user.role);

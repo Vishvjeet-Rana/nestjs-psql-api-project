@@ -12,6 +12,19 @@ export const RegisterSchema = z.object({
     .string()
     .trim()
     .min(8, { message: 'Password must be at least 8 characters long' }),
+
+  image: z.any().refine(
+    (file) => {
+      if (!file) return true; // optional
+      return (
+        file instanceof File &&
+        ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)
+      );
+    },
+    {
+      message: 'Only .jpg, .jpeg, and .png files are allowed',
+    },
+  ),
 });
 
 export const LoginSchema = z.object({
