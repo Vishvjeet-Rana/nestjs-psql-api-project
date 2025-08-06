@@ -85,7 +85,7 @@ export class AuthService {
 
     if (!user) {
       console.log('❌ User not found with email:', email);
-      return { message: 'If email was valid, a reset link sent to your email' };
+      throw new BadRequestException('Email is not registered');
     }
 
     console.log('✅ User found:', { id: user.id, email: user.email });
